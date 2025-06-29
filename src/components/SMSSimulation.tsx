@@ -529,7 +529,7 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
                     children: React.Children.map(currentSMSExample.content.props.children, (child) => {
                       if (React.isValidElement(child) && (child.props.className?.includes('bg-blue-50') || child.props.className?.includes('bg-red-50') || child.props.className?.includes('bg-yellow-50'))) {
                         return React.cloneElement(child, {
-                          children: React.cloneElement(child.props.children.props.children, {
+                          children: React.cloneElement(child.props.children, {
                             onClick: (e: React.MouseEvent) => {
                               e.stopPropagation();
                               const linkFlag = currentSMSExample.redFlags.find(f => f.element === 'link' && !f.found);
@@ -537,7 +537,7 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
                                 handleRedFlagClick(linkFlag.id);
                               }
                             },
-                            className: `${child.props.children.props.children.props.className} ${
+                            className: `${child.props.children.props.className || ''} ${
                               currentSMSExample.redFlags.find(f => f.element === 'link')?.found 
                                 ? 'bg-red-200 border-red-500' 
                                 : ''

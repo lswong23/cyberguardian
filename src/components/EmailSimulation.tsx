@@ -598,7 +598,7 @@ const EmailSimulation: React.FC<EmailSimulationProps> = ({
                 children: React.Children.map(currentEmailExample.content.props.children, (child) => {
                   if (React.isValidElement(child) && child.props.className?.includes('bg-blue-50')) {
                     return React.cloneElement(child, {
-                      children: React.cloneElement(child.props.children.props.children, {
+                      children: React.cloneElement(child.props.children, {
                         onClick: (e: React.MouseEvent) => {
                           e.stopPropagation();
                           const linkFlag = currentEmailExample.redFlags.find(f => f.element === 'link' && !f.found);
@@ -606,7 +606,7 @@ const EmailSimulation: React.FC<EmailSimulationProps> = ({
                             handleRedFlagClick(linkFlag.id);
                           }
                         },
-                        className: `${child.props.children.props.children.props.className} ${
+                        className: `${child.props.children.props.className || ''} ${
                           currentEmailExample.redFlags.find(f => f.element === 'link')?.found 
                             ? 'bg-red-200 border-red-500' 
                             : ''
