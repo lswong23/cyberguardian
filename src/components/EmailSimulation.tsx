@@ -37,9 +37,8 @@ const EmailSimulation: React.FC<EmailSimulationProps> = ({
   const [currentExample, setCurrentExample] = useState(0);
   const [showHints, setShowHints] = useState(false);
   const [simulationComplete, setSimulationComplete] = useState(false);
-  const [showResults, setShowResults] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
   const [lastAction, setLastAction] = useState<string | null>(null);
-  const [earnedBadges, setEarnedBadges] = useState<string[]>([]);
 
   const emailExamples: EmailExample[] = [
     {
@@ -263,29 +262,24 @@ const EmailSimulation: React.FC<EmailSimulationProps> = ({
       // Check if this is the last example
       if (currentExample === examples.length - 1) {
         setSimulationComplete(true);
+        setShowCelebration(true);
         
-        // Collect badges to show on results
-        const newBadges = [];
+        // Unlock badges
         if (!userProgress.badges.includes('phishing-detector')) {
           onUnlockBadge('phishing-detector');
-          newBadges.push('phishing-detector');
         }
         if (!userProgress.badges.includes('security-novice')) {
           onUnlockBadge('security-novice');
-          newBadges.push('security-novice');
         }
         if (!userProgress.badges.includes('eagle-eye')) {
           onUnlockBadge('eagle-eye');
-          newBadges.push('eagle-eye');
         }
-        
-        setEarnedBadges(newBadges);
         
         // Mark simulation as complete
         onCompleteSimulation('phishing-email-1');
 
-        // Show results page after a brief delay
-        setTimeout(() => setShowResults(true), 1000);
+        // Hide celebration after 4 seconds
+        setTimeout(() => setShowCelebration(false), 4000);
       }
     }
   };
@@ -323,124 +317,37 @@ const EmailSimulation: React.FC<EmailSimulationProps> = ({
     }
   };
 
-  // Results page with badges
-  if (showResults) {
-    const badgeDetails = [
-      { id: 'phishing-detector', name: 'Email Detective', description: 'You spotted all the tricks in fake emails!', icon: Mail },
-      { id: 'security-novice', name: 'Safety Student', description: 'You completed your first training lesson!', icon: CheckCircle },
-      { id: 'eagle-eye', name: 'Sharp Eyes', description: 'You found suspicious things very quickly!', icon: Target },
-    ];
-
-    return (
-      <div className="min-h-screen bg-warm-white p-4">
-        <div className="max-w-2xl mx-auto space-y-8">
-          {/* Results Header */}
-          <div className="bg-success-green text-white rounded-2xl p-8 text-center shadow-warm">
-            <Award className="h-20 w-20 mx-auto mb-6" />
-            <h2 className="text-elderly-3xl font-bold mb-4">Fantastic Work!</h2>
-            <p className="text-elderly-xl mb-6">
-              You've completed all the email safety training examples!
-            </p>
-            <div className="bg-white text-success-green px-6 py-3 rounded-xl text-elderly-xl font-bold inline-block">
-              You earned {(examples.length * 75)} points!
-            </div>
-          </div>
-
-          {/* Earned Badges */}
-          {earnedBadges.length > 0 && (
-            <div className="bg-white rounded-2xl p-8 shadow-warm border-4 border-warning-amber">
-              <h3 className="text-elderly-2xl font-bold mb-6 text-navy text-center flex items-center justify-center">
-                <Award className="h-8 w-8 mr-3 text-warning-amber" />
-                New Badges Earned!
-              </h3>
-              <div className="grid grid-cols-1 gap-6">
-                {earnedBadges.map((badgeId) => {
-                  const badge = badgeDetails.find(b => b.id === badgeId);
-                  if (!badge) return null;
-                  const Icon = badge.icon;
-                  return (
-                    <div key={badgeId} className="bg-gradient-to-br from-yellow-100 to-yellow-200 border-4 border-warning-amber rounded-2xl p-6 text-center">
-                      <div className="bg-warning-amber p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                        <Icon className="h-8 w-8 text-white" />
-                      </div>
-                      <h4 className="text-elderly-xl font-bold text-navy mb-2">{badge.name}</h4>
-                      <p className="text-elderly-base text-gray-700">{badge.description}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Summary */}
-          <div className="bg-white rounded-2xl p-8 shadow-warm border-4 border-navy">
-            <h3 className="text-elderly-2xl font-bold mb-6 text-navy text-center">What You Learned</h3>
-            <ul className="space-y-4 text-elderly-lg text-gray-700">
-              <li className="flex items-start">
-                <CheckCircle className="h-6 w-6 text-success-green mr-3 mt-1 flex-shrink-0" />
-                How to check if an email sender is legitimate
-              </li>
-              <li className="flex items-start">
-                <CheckCircle className="h-6 w-6 text-success-green mr-3 mt-1 flex-shrink-0" />
-                Recognizing urgent language that tries to scare you
-              </li>
-              <li className="flex items-start">
-                <CheckCircle className="h-6 w-6 text-success-green mr-3 mt-1 flex-shrink-0" />
-                Identifying suspicious links and fake websites
-              </li>
-              <li className="flex items-start">
-                <CheckCircle className="h-6 w-6 text-success-green mr-3 mt-1 flex-shrink-0" />
-                Understanding common scam tactics
-              </li>
-            </ul>
-          </div>
-
-          {/* Return Button */}
-          <div className="text-center">
-            <button
-              onClick={onReturnToDashboard}
-              className="bg-navy text-warm-white px-8 py-4 rounded-xl text-elderly-2xl font-bold hover:bg-blue-600 transition-colors duration-200 shadow-warm border-4 border-navy"
-            >
-              Return to Home
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-warm-white">
-      {/* Minimal Header */}
-      <div className="bg-navy text-warm-white p-4">
-        <div className="flex items-center justify-between">
+    <div className="space-y-8 bg-warm-white min-h-screen">
+      {/* Header */}
+      <div className="bg-white rounded-2xl p-6 shadow-warm border-4 border-navy">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <button
             onClick={onReturnToDashboard}
-            className="flex items-center space-x-2 bg-blue-accent px-4 py-2 rounded-xl text-elderly-base font-semibold hover:bg-blue-600 transition-colors duration-200"
+            className="flex items-center justify-center space-x-3 bg-gray-200 text-navy px-6 py-4 rounded-xl text-elderly-lg font-semibold border-2 border-navy hover:bg-gray-300 transition-colors duration-200"
+            title="Go back to the main page"
           >
-            <Home className="h-5 w-5" />
-            <span>Home</span>
+            <Home className="h-6 w-6" />
+            <span>Back to Home</span>
           </button>
           
-          <div className="flex items-center space-x-4">
-            <div className="text-elderly-base font-semibold">
-              {currentExample + 1} of {examples.length}
-            </div>
-            
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => setShowHints(!showHints)}
-              className="flex items-center space-x-2 bg-warning-amber px-4 py-2 rounded-xl text-elderly-base font-semibold hover:bg-yellow-600 transition-colors duration-200"
+              className="flex items-center justify-center space-x-3 bg-blue-accent text-warm-white px-6 py-4 rounded-xl text-elderly-lg font-semibold hover:bg-blue-600 transition-colors duration-200 shadow-warm"
+              title={showHints ? "Hide the helpful hints" : "Show helpful hints"}
             >
-              <Lightbulb className="h-5 w-5" />
-              <span>Hints</span>
+              <Lightbulb className="h-6 w-6" />
+              <span>{showHints ? 'Hide Hints' : 'Show Hints'}</span>
             </button>
             
             {lastAction && (
               <button
                 onClick={handleUndo}
-                className="flex items-center space-x-2 bg-gray-600 px-4 py-2 rounded-xl text-elderly-base font-semibold hover:bg-gray-700 transition-colors duration-200"
+                className="flex items-center justify-center space-x-3 bg-warning-amber text-white px-6 py-4 rounded-xl text-elderly-lg font-semibold hover:bg-yellow-600 transition-colors duration-200 shadow-warm"
+                title="Undo your last action"
               >
-                <Undo2 className="h-5 w-5" />
+                <Undo2 className="h-6 w-6" />
                 <span>Undo</span>
               </button>
             )}
@@ -448,144 +355,247 @@ const EmailSimulation: React.FC<EmailSimulationProps> = ({
         </div>
       </div>
 
-      <div className="p-4 space-y-6">
-        {/* Progress */}
-        <div className="bg-white rounded-2xl p-6 shadow-warm border-4 border-navy">
-          <div className="text-center mb-4">
-            <h2 className="text-elderly-2xl font-bold text-navy mb-2">{currentEmailExample.title}</h2>
-            <div className="flex items-center justify-center space-x-3 bg-success-green text-white px-4 py-2 rounded-xl text-elderly-lg font-semibold">
-              <Target className="h-5 w-5" />
-              <span>{flagsFound} of {currentEmailExample.redFlags.length} found</span>
+      {/* Progress Indicator */}
+      <div className="bg-white rounded-2xl p-8 shadow-warm border-4 border-navy">
+        <div className="text-center mb-6">
+          <h2 className="text-elderly-3xl font-bold text-navy mb-4">Email Safety Training</h2>
+          <p className="text-elderly-xl text-gray-700 mb-4">
+            Example {currentExample + 1} of {examples.length}: {currentEmailExample.title}
+          </p>
+          <div className="flex items-center justify-center space-x-3 bg-success-green text-white px-6 py-3 rounded-xl text-elderly-xl font-semibold shadow-warm">
+            <Target className="h-6 w-6" />
+            <span>{flagsFound} out of {currentEmailExample.redFlags.length} problems found</span>
+          </div>
+        </div>
+        
+        <div className="w-full bg-gray-200 rounded-full h-6 border-4 border-navy mb-4">
+          <div 
+            className="bg-success-green h-full rounded-full transition-all duration-500 flex items-center justify-end pr-4"
+            style={{ width: `${Math.max((flagsFound / currentEmailExample.redFlags.length) * 100, 5)}%` }}
+          >
+            {flagsFound > 0 && (
+              <span className="text-white font-bold text-elderly-base">
+                {Math.round((flagsFound / currentEmailExample.redFlags.length) * 100)}%
+              </span>
+            )}
+          </div>
+        </div>
+        <p className="text-elderly-lg text-center text-gray-700">
+          Click on anything that looks suspicious or wrong in the email below
+        </p>
+      </div>
+
+      {/* Celebration Modal */}
+      {showCelebration && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white border-4 border-navy rounded-2xl p-8 text-center max-w-md mx-4 shadow-warm">
+            <Award className="h-20 w-20 text-warning-amber mx-auto mb-6" />
+            <h3 className="text-elderly-3xl font-bold mb-4 text-navy">Fantastic Work!</h3>
+            <p className="text-elderly-xl mb-6 text-gray-700">You've completed all the email training examples!</p>
+            <div className="bg-success-green text-white px-6 py-3 rounded-xl text-elderly-xl font-semibold shadow-warm">
+              Great job! You earned lots of points!
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Email Interface */}
+      <div className="bg-white rounded-2xl shadow-warm border-4 border-navy overflow-hidden">
+        {/* Email Header */}
+        <div className="bg-gray-100 border-b-4 border-navy p-6">
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="bg-blue-accent p-3 rounded-full">
+              <Mail className="h-8 w-8 text-warm-white" />
+            </div>
+            <h3 className="text-elderly-2xl font-bold text-navy">Email Message</h3>
           </div>
           
-          <div className="w-full bg-gray-200 rounded-full h-4 border-2 border-navy">
-            <div 
-              className="bg-success-green h-full rounded-full transition-all duration-500"
-              style={{ width: `${Math.max((flagsFound / currentEmailExample.redFlags.length) * 100, 5)}%` }}
-            />
+          <div className="space-y-4 text-elderly-lg">
+            <div className="flex flex-col sm:flex-row">
+              <span className="font-bold text-navy sm:w-24 mb-2 sm:mb-0">From:</span>
+              <button
+                onClick={() => handleRedFlagClick('suspicious-sender')}
+                className={`text-left hover:bg-red-100 px-4 py-2 rounded-xl transition-colors duration-200 border-2 ${
+                  currentEmailExample.redFlags.find(f => f.id === 'suspicious-sender')?.found 
+                    ? 'bg-red-200 border-red-500' 
+                    : 'border-transparent hover:border-red-300'
+                }`}
+                title="Click if this sender looks suspicious"
+              >
+                {currentEmailExample.sender}
+              </button>
+            </div>
+            <div className="flex flex-col sm:flex-row">
+              <span className="font-bold text-navy sm:w-24 mb-2 sm:mb-0">To:</span>
+              <span className="text-gray-700">you@email.com</span>
+            </div>
+            <div className="flex flex-col sm:flex-row">
+              <span className="font-bold text-navy sm:w-24 mb-2 sm:mb-0">Subject:</span>
+              <span className="font-bold text-red-600">{currentEmailExample.subject}</span>
+            </div>
+            <div className="flex flex-col sm:flex-row">
+              <span className="font-bold text-navy sm:w-24 mb-2 sm:mb-0">Date:</span>
+              <span className="text-gray-700">Today, 2:14 PM</span>
+            </div>
           </div>
         </div>
 
-        {/* Email Interface */}
-        <div className="bg-white rounded-2xl shadow-warm border-4 border-navy overflow-hidden">
-          {/* Email Header */}
-          <div className="bg-gray-100 border-b-4 border-navy p-4">
-            <div className="space-y-3 text-elderly-base">
-              <div className="flex flex-col">
-                <span className="font-bold text-navy mb-1">From:</span>
-                <button
-                  onClick={() => handleRedFlagClick('suspicious-sender')}
-                  className={`text-left p-3 rounded-xl transition-colors duration-200 border-2 ${
-                    currentEmailExample.redFlags.find(f => f.id === 'suspicious-sender')?.found 
-                      ? 'bg-red-200 border-red-500' 
-                      : 'border-transparent hover:border-red-300 hover:bg-red-50'
-                  }`}
-                >
-                  {currentEmailExample.sender}
-                </button>
-              </div>
-              <div>
-                <span className="font-bold text-navy">Subject: </span>
-                <span className="font-bold text-red-600">{currentEmailExample.subject}</span>
-              </div>
-            </div>
+        {/* Email Body */}
+        <div className="p-8">
+          <div 
+            onClick={() => {
+              // Handle clicks on different parts of the email content
+              const urgentFlag = currentEmailExample.redFlags.find(f => f.id.includes('urgent') || f.id.includes('language') || f.id.includes('scare'));
+              if (urgentFlag && !urgentFlag.found) {
+                handleRedFlagClick(urgentFlag.id);
+              }
+            }}
+            className="cursor-pointer hover:bg-red-50 p-4 rounded-xl transition-colors duration-200"
+          >
+            {currentEmailExample.content}
           </div>
-
-          {/* Email Body */}
-          <div className="p-6">
-            <div 
-              onClick={() => {
-                const urgentFlag = currentEmailExample.redFlags.find(f => 
-                  f.id.includes('urgent') || f.id.includes('language') || f.id.includes('scare') || 
-                  f.id.includes('prize') || f.id.includes('pay') || f.id.includes('microsoft') ||
-                  f.id.includes('phone') || f.id.includes('tactics')
-                );
-                if (urgentFlag && !urgentFlag.found) {
-                  handleRedFlagClick(urgentFlag.id);
-                }
-              }}
-              className="cursor-pointer hover:bg-red-50 p-4 rounded-xl transition-colors duration-200 border-2 border-transparent hover:border-red-300"
-            >
-              {currentEmailExample.content}
-            </div>
+          
+          {/* Clickable elements for other red flags */}
+          <div className="mt-8 space-y-4">
+            {currentEmailExample.redFlags.filter(flag => flag.id.includes('link')).map(flag => (
+              <button
+                key={flag.id}
+                onClick={() => handleRedFlagClick(flag.id)}
+                className={`w-full p-4 rounded-xl border-2 transition-colors duration-200 ${
+                  flag.found 
+                    ? 'bg-red-200 border-red-500' 
+                    : 'bg-blue-50 border-blue-300 hover:bg-red-100 hover:border-red-300'
+                }`}
+                title="Click if this link looks suspicious"
+              >
+                <span className="text-elderly-lg font-semibold">
+                  {flag.id.includes('link') ? '🔗 Click here if this link looks suspicious' : ''}
+                </span>
+              </button>
+            ))}
             
-            {/* Clickable link button */}
-            {currentEmailExample.redFlags.some(flag => flag.id.includes('link') || flag.id.includes('website')) && (
-              <div className="mt-6">
-                <button
-                  onClick={() => {
-                    const linkFlag = currentEmailExample.redFlags.find(f => f.id.includes('link') || f.id.includes('website'));
-                    if (linkFlag && !linkFlag.found) {
-                      handleRedFlagClick(linkFlag.id);
-                    }
-                  }}
-                  className={`w-full p-4 rounded-xl border-2 transition-colors duration-200 text-elderly-lg font-semibold ${
-                    currentEmailExample.redFlags.find(f => f.id.includes('link') || f.id.includes('website'))?.found
-                      ? 'bg-red-200 border-red-500 text-red-800' 
-                      : 'bg-blue-50 border-blue-300 hover:bg-red-100 hover:border-red-300 text-blue-800'
-                  }`}
-                >
-                  🔗 Tap here if the website link looks suspicious
-                </button>
-              </div>
-            )}
+            {currentEmailExample.redFlags.filter(flag => flag.id.includes('pay') || flag.id.includes('prize') || flag.id.includes('phone')).map(flag => (
+              <button
+                key={flag.id}
+                onClick={() => handleRedFlagClick(flag.id)}
+                className={`w-full p-4 rounded-xl border-2 transition-colors duration-200 ${
+                  flag.found 
+                    ? 'bg-red-200 border-red-500' 
+                    : 'bg-yellow-50 border-yellow-300 hover:bg-red-100 hover:border-red-300'
+                }`}
+                title="Click if this seems suspicious"
+              >
+                <span className="text-elderly-lg font-semibold">
+                  {flag.id.includes('pay') && '💳 Click here if paying money to get money seems wrong'}
+                  {flag.id.includes('prize') && '🎁 Click here if winning a prize you never entered seems suspicious'}
+                  {flag.id.includes('phone') && '📞 Click here if this phone number seems suspicious'}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
+      </div>
 
-        {/* Navigation */}
-        {!simulationComplete && (
-          <div className="flex justify-center space-x-4">
+      {/* Navigation between examples */}
+      {!simulationComplete && (
+        <div className="flex justify-center space-x-4">
+          <button
+            onClick={prevExample}
+            disabled={currentExample === 0}
+            className={`px-6 py-3 rounded-xl text-elderly-lg font-semibold transition-colors duration-200 ${
+              currentExample === 0 
+                ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+                : 'bg-gray-300 text-navy hover:bg-gray-400'
+            }`}
+          >
+            ← Previous Example
+          </button>
+          
+          {allFlagsFound && currentExample < examples.length - 1 && (
             <button
-              onClick={prevExample}
-              disabled={currentExample === 0}
-              className={`px-6 py-3 rounded-xl text-elderly-lg font-semibold transition-colors duration-200 ${
-                currentExample === 0 
-                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                  : 'bg-gray-300 text-navy hover:bg-gray-400'
+              onClick={nextExample}
+              className="bg-blue-accent text-warm-white px-8 py-4 rounded-xl text-elderly-xl font-bold hover:bg-blue-600 transition-colors duration-200 shadow-warm flex items-center space-x-3"
+            >
+              <span>Next Example</span>
+              <ArrowLeft className="h-6 w-6 rotate-180" />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Hints Panel */}
+      {showHints && (
+        <div className="bg-yellow-50 border-4 border-warning-amber rounded-2xl p-8 shadow-warm">
+          <h3 className="text-elderly-2xl font-bold mb-6 text-yellow-800 flex items-center">
+            <Lightbulb className="h-8 w-8 mr-3" />
+            Helpful Hints
+          </h3>
+          <div className="space-y-6">
+            {currentEmailExample.redFlags.map((flag) => (
+              <div key={flag.id} className={`p-6 rounded-xl border-2 ${flag.found ? 'bg-green-100 border-success-green' : 'bg-white border-warning-amber'}`}>
+                <div className="flex items-center space-x-3 mb-3">
+                  {flag.found ? (
+                    <CheckCircle className="h-7 w-7 text-success-green" />
+                  ) : (
+                    <AlertTriangle className="h-7 w-7 text-warning-amber" />
+                  )}
+                  <h4 className="text-elderly-xl font-bold text-navy">{flag.title}</h4>
+                </div>
+                <p className="text-elderly-lg text-gray-700">
+                  {flag.found ? `✓ Found! ${flag.description}` : flag.hint}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Red Flags Summary */}
+      <div className="bg-white rounded-2xl p-8 shadow-warm border-4 border-navy">
+        <h3 className="text-elderly-2xl font-bold mb-6 text-navy text-center">Problems to Find in This Email</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {currentEmailExample.redFlags.map((flag) => (
+            <div
+              key={flag.id}
+              className={`p-6 rounded-xl border-4 transition-all duration-200 text-center ${
+                flag.found
+                  ? 'bg-success-green text-white border-success-green'
+                  : 'bg-gray-100 border-gray-400'
               }`}
             >
-              ← Previous
-            </button>
-            
-            {allFlagsFound && currentExample < examples.length - 1 && (
-              <button
-                onClick={nextExample}
-                className="bg-blue-accent text-warm-white px-8 py-4 rounded-xl text-elderly-xl font-bold hover:bg-blue-600 transition-colors duration-200 shadow-warm"
-              >
-                Next Example →
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Hints Panel */}
-        {showHints && (
-          <div className="bg-yellow-50 border-4 border-warning-amber rounded-2xl p-6 shadow-warm">
-            <h3 className="text-elderly-xl font-bold mb-4 text-yellow-800 flex items-center">
-              <Lightbulb className="h-6 w-6 mr-2" />
-              Helpful Hints
-            </h3>
-            <div className="space-y-4">
-              {currentEmailExample.redFlags.map((flag) => (
-                <div key={flag.id} className={`p-4 rounded-xl border-2 ${flag.found ? 'bg-green-100 border-success-green' : 'bg-white border-warning-amber'}`}>
-                  <div className="flex items-center space-x-2 mb-2">
-                    {flag.found ? (
-                      <CheckCircle className="h-5 w-5 text-success-green" />
-                    ) : (
-                      <AlertTriangle className="h-5 w-5 text-warning-amber" />
-                    )}
-                    <h4 className="text-elderly-lg font-bold text-navy">{flag.title}</h4>
-                  </div>
-                  <p className="text-elderly-base text-gray-700">
-                    {flag.found ? `✓ Found! ${flag.description}` : flag.hint}
-                  </p>
+              {flag.found ? (
+                <CheckCircle className="h-12 w-12 mx-auto mb-4" />
+              ) : (
+                <AlertTriangle className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+              )}
+              <h4 className="text-elderly-lg font-bold mb-3">{flag.title}</h4>
+              {flag.found && (
+                <div className="bg-white text-success-green px-4 py-2 rounded-xl text-elderly-base font-bold">
+                  Found! +25 Points
                 </div>
-              ))}
+              )}
             </div>
-          </div>
-        )}
+          ))}
+        </div>
       </div>
+
+      {/* Completion Message */}
+      {simulationComplete && (
+        <div className="bg-success-green text-white rounded-2xl p-8 text-center shadow-warm border-4 border-success-green">
+          <Award className="h-20 w-20 mx-auto mb-6" />
+          <h3 className="text-elderly-3xl font-bold mb-6">Excellent Work!</h3>
+          <p className="text-elderly-xl mb-8 max-w-2xl mx-auto">
+            You've successfully completed all the email safety training! You now know how to spot 
+            fake emails and protect yourself from scams. Great job!
+          </p>
+          <button
+            onClick={onReturnToDashboard}
+            className="bg-white text-success-green px-8 py-4 rounded-xl text-elderly-2xl font-bold hover:bg-gray-100 transition-colors duration-200 shadow-warm border-4 border-white"
+          >
+            Return to Home
+          </button>
+        </div>
+      )}
     </div>
   );
 };
