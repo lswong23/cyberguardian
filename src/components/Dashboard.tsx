@@ -41,8 +41,8 @@ const Dashboard: React.FC<DashboardProps> = ({ userProgress, onStartEmailSimulat
             <h3 className="text-elderly-xl font-bold text-navy">Why Trust Us?</h3>
           </div>
           <p className="text-elderly-base text-gray-700">
-            We use simple, clear examples to help you recognize and avoid scams. 
-            Our lessons are designed to be easy to understand and follow.
+            Created by cybersecurity experts and tested with families like yours. 
+            We use simple, clear examples to help you recognize and avoid scams.
           </p>
         </div>
 
