@@ -527,23 +527,27 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
                 >
                   {React.cloneElement(currentSMSExample.content, {
                     children: React.Children.map(currentSMSExample.content.props.children, (child) => {
-                      if (React.isValidElement(child) && (child.props.className?.includes('bg-blue-50') || child.props.className?.includes('bg-red-50') || child.props.className?.includes('bg-yellow-50'))) {
-                        return React.cloneElement(child, {
-                          children: React.cloneElement(child.props.children, {
-                            onClick: (e: React.MouseEvent) => {
-                              e.stopPropagation();
-                              const linkFlag = currentSMSExample.redFlags.find(f => f.element === 'link' && !f.found);
-                              if (linkFlag) {
-                                handleRedFlagClick(linkFlag.id);
-                              }
-                            },
-                            className: `${child.props.children.props.className || ''} ${
-                              currentSMSExample.redFlags.find(f => f.element === 'link')?.found 
-                                ? 'bg-red-200 border-red-500' 
-                                : ''
-                            }`
-                          })
-                        });
+                      if (React.isValidElement(child) && child.props && child.props.className && (child.props.className.includes('bg-blue-50') || child.props.className.includes('bg-red-50') || child.props.className.includes('bg-yellow-50'))) {
+                        // Check if child.props.children is a single valid React element
+                        if (React.Children.count(child.props.children) === 1 && React.isValidElement(React.Children.only(child.props.children))) {
+                          const singleChild = React.Children.only(child.props.children);
+                          return React.cloneElement(child, {
+                            children: React.cloneElement(singleChild, {
+                              onClick: (e: React.MouseEvent) => {
+                                e.stopPropagation();
+                                const linkFlag = currentSMSExample.redFlags.find(f => f.element === 'link' && !f.found);
+                                if (linkFlag) {
+                                  handleRedFlagClick(linkFlag.id);
+                                }
+                              },
+                              className: `${singleChild.props.className || ''} ${
+                                currentSMSExample.redFlags.find(f => f.element === 'link')?.found 
+                                  ? 'bg-red-200 border-red-500' 
+                                  : ''
+                              }`
+                            })
+                          });
+                        }
                       }
                       return child;
                     })
