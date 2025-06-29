@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, MessageSquare, AlertTriangle, CheckCircle, Eye, Target, Award, Smartphone, Lightbulb, Home, Undo2 } from 'lucide-react';
+import { ArrowLeft, MessageSquare, AlertTriangle, CheckCircle, Target, Award, Smartphone, Lightbulb, Home, Undo2, Clock, Phone } from 'lucide-react';
 import { UserProgress } from '../App';
 
 interface SMSSimulationProps {
@@ -16,6 +16,7 @@ interface RedFlag {
   description: string;
   found: boolean;
   hint: string;
+  element: 'sender' | 'content' | 'link' | 'urgency';
 }
 
 interface SMSExample {
@@ -38,6 +39,7 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
   const [simulationComplete, setSimulationComplete] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [lastAction, setLastAction] = useState<string | null>(null);
+  const [showResults, setShowResults] = useState(false);
 
   const smsExamples: SMSExample[] = [
     {
@@ -45,14 +47,17 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
       title: 'Fake Bank Text',
       sender: '+1 (555) 123-9876',
       content: (
-        <div className="space-y-4">
+        <div className="space-y-4 text-elderly-lg">
           <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl">
             <p className="font-bold text-red-600 text-elderly-xl mb-2">🚨 URGENT ALERT 🚨</p>
-            <p className="text-elderly-lg">Your bank account will be SUSPENDED in 2 hours due to suspicious activity.</p>
+            <p>Your bank account will be SUSPENDED in 2 hours due to suspicious activity.</p>
           </div>
-          <p className="text-elderly-lg">Verify your identity immediately to prevent account closure:</p>
+          <p>Verify your identity immediately to prevent account closure:</p>
           <div className="bg-blue-50 border-2 border-blue-300 rounded-xl p-4 text-center">
-            <button className="bg-blue-600 text-white px-6 py-3 rounded-xl text-elderly-lg font-bold hover:bg-red-600 transition-colors duration-200 w-full">
+            <button 
+              className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-red-200 hover:text-red-800 transition-colors duration-200 w-full border-2 border-transparent hover:border-red-500 min-h-[44px]"
+              title="This is a suspicious link - click to identify it"
+            >
               🔗 Verify Now: bit.ly/bank-verify-urgent
             </button>
           </div>
@@ -65,21 +70,24 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
           title: 'Unknown Phone Number',
           description: 'This random phone number is not from your real bank',
           found: false,
-          hint: 'Real banks use official short codes or numbers you recognize, not random phone numbers'
+          hint: 'Real banks use official short codes or numbers you recognize, not random phone numbers',
+          element: 'sender'
         },
         {
           id: 'urgent-threat',
           title: 'Scary Urgent Language',
           description: 'Real banks don\'t threaten to suspend your account with scary messages like this',
           found: false,
-          hint: 'Notice how the text tries to scare you with urgent threats - real banks are more polite'
+          hint: 'Notice how the text tries to scare you with urgent threats - real banks are more polite',
+          element: 'urgency'
         },
         {
           id: 'suspicious-link',
           title: 'Shortened Link',
           description: 'The shortened link "bit.ly" hides where it really goes - this is suspicious',
           found: false,
-          hint: 'Shortened links like "bit.ly" can hide dangerous websites - be very careful!'
+          hint: 'Shortened links like "bit.ly" can hide dangerous websites - be very careful!',
+          element: 'link'
         }
       ]
     },
@@ -88,17 +96,17 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
       title: 'Fake Delivery Text',
       sender: '+1 (888) 555-0123',
       content: (
-        <div className="space-y-4">
+        <div className="space-y-4 text-elderly-lg">
           <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-r-xl">
             <p className="font-bold text-yellow-800 text-elderly-xl mb-2">📦 Package Delivery Alert</p>
-            <p className="text-elderly-lg">We attempted to deliver your package but no one was home.</p>
+            <p>We attempted to deliver your package but no one was home.</p>
           </div>
-          <p className="text-elderly-lg">
+          <p>
             Your package from Amazon is being held at our facility. 
             A delivery fee of $3.95 is required for redelivery.
           </p>
           <div className="bg-green-50 border-2 border-green-400 p-4 rounded-xl">
-            <p className="text-elderly-lg font-bold text-green-800 mb-2">Package Details:</p>
+            <p className="font-bold text-green-800 mb-2">Package Details:</p>
             <ul className="text-elderly-base text-green-700 space-y-1">
               <li>• Tracking: AMZ789456123</li>
               <li>• Value: $89.99</li>
@@ -106,7 +114,10 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
             </ul>
           </div>
           <div className="bg-red-50 border-2 border-red-400 rounded-xl p-4 text-center">
-            <button className="bg-red-600 text-white px-6 py-3 rounded-xl text-elderly-lg font-bold hover:bg-red-700 transition-colors duration-200 w-full">
+            <button 
+              className="bg-red-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-red-200 hover:text-red-800 transition-colors duration-200 w-full border-2 border-transparent hover:border-red-500 min-h-[44px]"
+              title="This payment request is suspicious - click to identify it"
+            >
               💳 Pay Delivery Fee: tinyurl.com/package-pay
             </button>
           </div>
@@ -119,21 +130,24 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
           title: 'Unexpected Package',
           description: 'You didn\'t order anything, so there shouldn\'t be a package for you',
           found: false,
-          hint: 'Think about it - did you order anything recently? If not, this text is probably fake'
+          hint: 'Think about it - did you order anything recently? If not, this text is probably fake',
+          element: 'content'
         },
         {
           id: 'pay-for-delivery',
           title: 'Pay for Delivery',
           description: 'Real delivery companies don\'t ask for small fees via text message links',
           found: false,
-          hint: 'Legitimate delivery companies handle fees differently - not through text message links'
+          hint: 'Legitimate delivery companies handle fees differently - not through text message links',
+          element: 'link'
         },
         {
           id: 'shortened-url',
           title: 'Another Shortened Link',
           description: 'The "tinyurl.com" link hides the real website address',
           found: false,
-          hint: 'Another shortened link that hides where it really goes - this is a red flag!'
+          hint: 'Another shortened link that hides where it really goes - this is a red flag!',
+          element: 'link'
         }
       ]
     },
@@ -142,29 +156,32 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
       title: 'Fake Tax Refund',
       sender: 'IRS-REFUND',
       content: (
-        <div className="space-y-4">
+        <div className="space-y-4 text-elderly-lg">
           <div className="bg-green-100 border-l-4 border-green-500 p-4 rounded-r-xl">
             <p className="font-bold text-green-800 text-elderly-xl mb-2">💰 Tax Refund Notice</p>
-            <p className="text-elderly-lg">Good news! You have a tax refund of $1,247 waiting for you.</p>
+            <p>Good news! You have a tax refund of $1,247 waiting for you.</p>
           </div>
-          <p className="text-elderly-lg">
+          <p>
             The IRS has processed your tax return and approved your refund. 
             To receive your money quickly, please verify your information.
           </p>
           <div className="bg-blue-50 border-2 border-blue-400 p-4 rounded-xl">
-            <p className="text-elderly-lg font-bold text-blue-800 mb-2">Refund Details:</p>
+            <p className="font-bold text-blue-800 mb-2">Refund Details:</p>
             <ul className="text-elderly-base text-blue-700 space-y-1">
               <li>• Refund Amount: $1,247.00</li>
               <li>• Processing Date: Today</li>
               <li>• Reference: IRS-2024-REF-789</li>
             </ul>
           </div>
-          <p className="text-elderly-lg">
+          <p>
             Click the secure link below to verify your bank account information 
             and receive your refund within 24 hours:
           </p>
           <div className="bg-yellow-50 border-2 border-yellow-400 rounded-xl p-4 text-center">
-            <button className="bg-yellow-600 text-white px-6 py-3 rounded-xl text-elderly-lg font-bold hover:bg-red-600 transition-colors duration-200 w-full">
+            <button 
+              className="bg-yellow-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-red-200 hover:text-red-800 transition-colors duration-200 w-full border-2 border-transparent hover:border-red-500 min-h-[44px]"
+              title="This IRS website is fake - click to identify it"
+            >
               🏛️ Claim Refund: irs-refund-claim.net
             </button>
           </div>
@@ -177,21 +194,24 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
           title: 'IRS Doesn\'t Send Texts',
           description: 'The real IRS never sends text messages about refunds or asks for information this way',
           found: false,
-          hint: 'The IRS only contacts people by mail - they never send text messages about refunds!'
+          hint: 'The IRS only contacts people by mail - they never send text messages about refunds!',
+          element: 'sender'
         },
         {
           id: 'fake-urgency-refund',
           title: 'Fake Time Pressure',
           description: 'Real tax refunds don\'t have expiration dates like this',
           found: false,
-          hint: 'Tax refunds don\'t expire in 48 hours - this urgency is fake to make you act quickly'
+          hint: 'Tax refunds don\'t expire in 48 hours - this urgency is fake to make you act quickly',
+          element: 'urgency'
         },
         {
           id: 'fake-website',
           title: 'Fake IRS Website',
           description: 'The website "irs-refund-claim.net" is not the real IRS website',
           found: false,
-          hint: 'The real IRS website is irs.gov - this fake website is trying to steal your information'
+          hint: 'The real IRS website is irs.gov - this fake website is trying to steal your information',
+          element: 'link'
         }
       ]
     }
@@ -204,7 +224,7 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
   const allFlagsFound = flagsFound === currentSMSExample.redFlags.length;
 
   const handleRedFlagClick = (flagId: string) => {
-    if (simulationComplete) return;
+    if (simulationComplete || showResults) return;
 
     setLastAction(flagId);
     
@@ -232,38 +252,15 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
       // Award completion bonus for this example
       onAddPoints(50);
       
-      // Check if this is the last example
-      if (currentExample === examples.length - 1) {
-        setSimulationComplete(true);
-        setShowCelebration(true);
-        
-        // Unlock badges
-        if (!userProgress.badges.includes('sms-guardian')) {
-          onUnlockBadge('sms-guardian');
-        }
-        if (!userProgress.badges.includes('security-novice')) {
-          onUnlockBadge('security-novice');
-        }
-        if (!userProgress.badges.includes('eagle-eye')) {
-          onUnlockBadge('eagle-eye');
-        }
-        
-        // Check if user completed both email and SMS training for special badge
-        if (userProgress.completedSimulations.includes('phishing-email-1') && !userProgress.badges.includes('scam-buster')) {
-          onUnlockBadge('scam-buster');
-        }
-        
-        // Mark simulation as complete
-        onCompleteSimulation('sms-scam-1');
-
-        // Hide celebration after 4 seconds
-        setTimeout(() => setShowCelebration(false), 4000);
-      }
+      // Show results page
+      setTimeout(() => {
+        setShowResults(true);
+      }, 1000);
     }
   };
 
   const handleUndo = () => {
-    if (!lastAction) return;
+    if (!lastAction || showResults) return;
     
     setExamples(prev => prev.map((example, index) => 
       index === currentExample 
@@ -285,6 +282,33 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
     if (currentExample < examples.length - 1) {
       setCurrentExample(currentExample + 1);
       setLastAction(null);
+      setShowResults(false);
+    } else {
+      // Complete simulation
+      setSimulationComplete(true);
+      setShowCelebration(true);
+      
+      // Unlock badges
+      if (!userProgress.badges.includes('sms-guardian')) {
+        onUnlockBadge('sms-guardian');
+      }
+      if (!userProgress.badges.includes('security-novice')) {
+        onUnlockBadge('security-novice');
+      }
+      if (!userProgress.badges.includes('eagle-eye')) {
+        onUnlockBadge('eagle-eye');
+      }
+      
+      // Check if user completed both email and SMS training for special badge
+      if (userProgress.completedSimulations.includes('phishing-email-1') && !userProgress.badges.includes('scam-buster')) {
+        onUnlockBadge('scam-buster');
+      }
+      
+      // Mark simulation as complete
+      onCompleteSimulation('sms-scam-1');
+
+      // Hide celebration after 4 seconds
+      setTimeout(() => setShowCelebration(false), 4000);
     }
   };
 
@@ -292,8 +316,73 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
     if (currentExample > 0) {
       setCurrentExample(currentExample - 1);
       setLastAction(null);
+      setShowResults(false);
     }
   };
+
+  // Results Page
+  if (showResults && allFlagsFound) {
+    return (
+      <div className="space-y-8 bg-warm-white min-h-screen">
+        <div className="max-w-2xl mx-auto text-center">
+          {/* Celebration */}
+          <div className="bg-success-green text-white rounded-2xl p-8 shadow-warm border-4 border-success-green mb-8">
+            <Award className="h-20 w-20 mx-auto mb-6" />
+            <h2 className="text-elderly-3xl font-bold mb-4">Excellent Work!</h2>
+            <p className="text-elderly-xl mb-6">
+              You found all {currentSMSExample.redFlags.length} suspicious things in this text message!
+            </p>
+            <div className="bg-white text-success-green px-6 py-3 rounded-xl text-elderly-xl font-semibold shadow-warm inline-block">
+              +{75} Points Earned!
+            </div>
+          </div>
+
+          {/* What You Found */}
+          <div className="bg-white rounded-2xl p-8 shadow-warm border-4 border-navy mb-8">
+            <h3 className="text-elderly-2xl font-bold mb-6 text-navy">What You Spotted:</h3>
+            <div className="space-y-4">
+              {currentSMSExample.redFlags.map((flag) => (
+                <div key={flag.id} className="bg-green-100 border-2 border-success-green rounded-xl p-6 text-left">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <CheckCircle className="h-7 w-7 text-success-green" />
+                    <h4 className="text-elderly-xl font-bold text-navy">{flag.title}</h4>
+                  </div>
+                  <p className="text-elderly-lg text-gray-700">{flag.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {currentExample < examples.length - 1 ? (
+              <button
+                onClick={nextExample}
+                className="bg-blue-accent text-warm-white px-8 py-4 rounded-xl text-elderly-xl font-bold hover:bg-blue-600 transition-colors duration-200 shadow-warm flex items-center space-x-3 justify-center min-h-[44px]"
+              >
+                <span>Next Text Example</span>
+                <ArrowLeft className="h-6 w-6 rotate-180" />
+              </button>
+            ) : (
+              <button
+                onClick={nextExample}
+                className="bg-warning-amber text-white px-8 py-4 rounded-xl text-elderly-xl font-bold hover:bg-yellow-600 transition-colors duration-200 shadow-warm flex items-center space-x-3 justify-center min-h-[44px]"
+              >
+                <Award className="h-6 w-6" />
+                <span>Complete Training</span>
+              </button>
+            )}
+            <button
+              onClick={onReturnToDashboard}
+              className="bg-gray-200 text-navy px-6 py-3 rounded-xl text-elderly-lg font-semibold hover:bg-gray-300 transition-colors duration-200 min-h-[44px]"
+            >
+              Return to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 bg-warm-white min-h-screen">
@@ -302,7 +391,7 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
         <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <button
             onClick={onReturnToDashboard}
-            className="flex items-center justify-center space-x-3 bg-gray-200 text-navy px-6 py-4 rounded-xl text-elderly-lg font-semibold border-2 border-navy hover:bg-gray-300 transition-colors duration-200"
+            className="flex items-center justify-center space-x-3 bg-gray-200 text-navy px-6 py-4 rounded-xl text-elderly-lg font-semibold border-2 border-navy hover:bg-gray-300 transition-colors duration-200 min-h-[44px]"
             title="Go back to the main page"
           >
             <Home className="h-6 w-6" />
@@ -312,17 +401,17 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => setShowHints(!showHints)}
-              className="flex items-center justify-center space-x-3 bg-blue-accent text-warm-white px-6 py-4 rounded-xl text-elderly-lg font-semibold hover:bg-blue-600 transition-colors duration-200 shadow-warm"
+              className="flex items-center justify-center space-x-3 bg-blue-accent text-warm-white px-6 py-4 rounded-xl text-elderly-lg font-semibold hover:bg-blue-600 transition-colors duration-200 shadow-warm min-h-[44px]"
               title={showHints ? "Hide the helpful hints" : "Show helpful hints"}
             >
               <Lightbulb className="h-6 w-6" />
               <span>{showHints ? 'Hide Hints' : 'Show Hints'}</span>
             </button>
             
-            {lastAction && (
+            {lastAction && !showResults && (
               <button
                 onClick={handleUndo}
-                className="flex items-center justify-center space-x-3 bg-warning-amber text-white px-6 py-4 rounded-xl text-elderly-lg font-semibold hover:bg-yellow-600 transition-colors duration-200 shadow-warm"
+                className="flex items-center justify-center space-x-3 bg-warning-amber text-white px-6 py-4 rounded-xl text-elderly-lg font-semibold hover:bg-yellow-600 transition-colors duration-200 shadow-warm min-h-[44px]"
                 title="Undo your last action"
               >
                 <Undo2 className="h-6 w-6" />
@@ -377,14 +466,20 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
         </div>
       )}
 
-      {/* Phone Interface */}
+      {/* Realistic Phone Interface */}
       <div className="max-w-sm mx-auto sm:max-w-md">
         <div className="bg-navy rounded-3xl p-6 shadow-2xl">
           {/* Phone Header */}
           <div className="bg-gray-800 rounded-2xl p-4 mb-4">
-            <div className="flex items-center justify-center space-x-3 text-warm-white">
-              <Smartphone className="h-6 w-6" />
-              <span className="text-elderly-lg font-semibold">Text Messages</span>
+            <div className="flex items-center justify-between text-warm-white">
+              <div className="flex items-center space-x-3">
+                <Smartphone className="h-6 w-6" />
+                <span className="text-elderly-lg font-semibold">Messages</span>
+              </div>
+              <div className="flex items-center space-x-2 text-elderly-base">
+                <Clock className="h-4 w-4" />
+                <span>2:47 PM</span>
+              </div>
             </div>
           </div>
 
@@ -393,19 +488,24 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
             {/* Contact Header */}
             <div className="flex items-center space-x-4 mb-6 pb-4 border-b-2 border-gray-200">
               <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                <MessageSquare className="h-6 w-6 text-gray-600" />
+                <Phone className="h-6 w-6 text-gray-600" />
               </div>
-              <div>
+              <div className="flex-1">
                 <button
-                  onClick={() => handleRedFlagClick('unknown-sender')}
-                  className={`text-elderly-xl font-bold hover:bg-red-100 px-3 py-2 rounded-xl transition-colors duration-200 ${
-                    currentSMSExample.redFlags.find(f => f.id === 'unknown-sender')?.found ? 'bg-red-200 border-2 border-red-500' : ''
+                  onClick={() => {
+                    const senderFlag = currentSMSExample.redFlags.find(f => f.element === 'sender');
+                    if (senderFlag && !senderFlag.found) {
+                      handleRedFlagClick(senderFlag.id);
+                    }
+                  }}
+                  className={`text-elderly-xl font-bold hover:bg-red-100 px-3 py-2 rounded-xl transition-colors duration-200 border-2 min-h-[44px] w-full text-left ${
+                    currentSMSExample.redFlags.find(f => f.element === 'sender')?.found ? 'bg-red-200 border-red-500' : 'border-transparent hover:border-red-300'
                   }`}
                   title="Click if this sender looks suspicious"
                 >
                   {currentSMSExample.sender}
                 </button>
-                <p className="text-elderly-base text-gray-600">Unknown Number</p>
+                <p className="text-elderly-base text-gray-600 px-3">Unknown Number</p>
               </div>
             </div>
 
@@ -414,50 +514,40 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
               <div className="bg-gray-100 rounded-2xl rounded-tl-sm p-6 max-w-xs">
                 <div 
                   onClick={() => {
-                    // Handle clicks on different parts of the SMS content
-                    const urgentFlag = currentSMSExample.redFlags.find(f => f.id.includes('urgent') || f.id.includes('threat') || f.id.includes('doesnt'));
-                    if (urgentFlag && !urgentFlag.found) {
-                      handleRedFlagClick(urgentFlag.id);
+                    const contentFlag = currentSMSExample.redFlags.find(f => f.element === 'content' && !f.found);
+                    const urgencyFlag = currentSMSExample.redFlags.find(f => f.element === 'urgency' && !f.found);
+                    if (contentFlag) {
+                      handleRedFlagClick(contentFlag.id);
+                    } else if (urgencyFlag) {
+                      handleRedFlagClick(urgencyFlag.id);
                     }
                   }}
-                  className="cursor-pointer hover:bg-red-50 p-2 rounded-xl transition-colors duration-200"
+                  className="cursor-pointer hover:bg-red-50 p-2 rounded-xl transition-colors duration-200 min-h-[44px]"
+                  title="Click if anything in this message looks suspicious"
                 >
-                  {currentSMSExample.content}
-                </div>
-                
-                {/* Clickable elements for other red flags */}
-                <div className="mt-4 space-y-3">
-                  {currentSMSExample.redFlags.filter(flag => flag.id.includes('link') || flag.id.includes('url') || flag.id.includes('website')).map(flag => (
-                    <button
-                      key={flag.id}
-                      onClick={() => handleRedFlagClick(flag.id)}
-                      className={`w-full p-3 rounded-xl border-2 transition-colors duration-200 text-elderly-base ${
-                        flag.found 
-                          ? 'bg-red-200 border-red-500' 
-                          : 'bg-blue-50 border-blue-300 hover:bg-red-100 hover:border-red-300'
-                      }`}
-                      title="Click if this link looks suspicious"
-                    >
-                      🔗 Click here if this link looks suspicious
-                    </button>
-                  ))}
-                  
-                  {currentSMSExample.redFlags.filter(flag => flag.id.includes('pay') || flag.id.includes('package') || flag.id.includes('refund')).map(flag => (
-                    <button
-                      key={flag.id}
-                      onClick={() => handleRedFlagClick(flag.id)}
-                      className={`w-full p-3 rounded-xl border-2 transition-colors duration-200 text-elderly-base ${
-                        flag.found 
-                          ? 'bg-red-200 border-red-500' 
-                          : 'bg-yellow-50 border-yellow-300 hover:bg-red-100 hover:border-red-300'
-                      }`}
-                      title="Click if this seems suspicious"
-                    >
-                      {flag.id.includes('pay') && '💳 Click here if paying for delivery seems wrong'}
-                      {flag.id.includes('package') && '📦 Click here if this unexpected package seems suspicious'}
-                      {flag.id.includes('refund') && '💰 Click here if this refund offer seems suspicious'}
-                    </button>
-                  ))}
+                  {React.cloneElement(currentSMSExample.content, {
+                    children: React.Children.map(currentSMSExample.content.props.children, (child) => {
+                      if (React.isValidElement(child) && (child.props.className?.includes('bg-blue-50') || child.props.className?.includes('bg-red-50') || child.props.className?.includes('bg-yellow-50'))) {
+                        return React.cloneElement(child, {
+                          children: React.cloneElement(child.props.children.props.children, {
+                            onClick: (e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              const linkFlag = currentSMSExample.redFlags.find(f => f.element === 'link' && !f.found);
+                              if (linkFlag) {
+                                handleRedFlagClick(linkFlag.id);
+                              }
+                            },
+                            className: `${child.props.children.props.children.props.className} ${
+                              currentSMSExample.redFlags.find(f => f.element === 'link')?.found 
+                                ? 'bg-red-200 border-red-500' 
+                                : ''
+                            }`
+                          })
+                        });
+                      }
+                      return child;
+                    })
+                  })}
                 </div>
                 
                 <div className="text-right mt-4">
@@ -470,12 +560,12 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
       </div>
 
       {/* Navigation between examples */}
-      {!simulationComplete && (
+      {!simulationComplete && !showResults && (
         <div className="flex justify-center space-x-4">
           <button
             onClick={prevExample}
             disabled={currentExample === 0}
-            className={`px-6 py-3 rounded-xl text-elderly-lg font-semibold transition-colors duration-200 ${
+            className={`px-6 py-3 rounded-xl text-elderly-lg font-semibold transition-colors duration-200 min-h-[44px] ${
               currentExample === 0 
                 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
                 : 'bg-gray-300 text-navy hover:bg-gray-400'
@@ -483,16 +573,6 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
           >
             ← Previous Example
           </button>
-          
-          {allFlagsFound && currentExample < examples.length - 1 && (
-            <button
-              onClick={nextExample}
-              className="bg-blue-accent text-warm-white px-8 py-4 rounded-xl text-elderly-xl font-bold hover:bg-blue-600 transition-colors duration-200 shadow-warm flex items-center space-x-3"
-            >
-              <span>Next Example</span>
-              <ArrowLeft className="h-6 w-6 rotate-180" />
-            </button>
-          )}
         </div>
       )}
 
@@ -522,35 +602,6 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
           </div>
         </div>
       )}
-
-      {/* Red Flags Summary */}
-      <div className="bg-white rounded-2xl p-8 shadow-warm border-4 border-navy">
-        <h3 className="text-elderly-2xl font-bold mb-6 text-navy text-center">Problems to Find in This Text</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {currentSMSExample.redFlags.map((flag) => (
-            <div
-              key={flag.id}
-              className={`p-6 rounded-xl border-4 transition-all duration-200 text-center ${
-                flag.found
-                  ? 'bg-success-green text-white border-success-green'
-                  : 'bg-gray-100 border-gray-400'
-              }`}
-            >
-              {flag.found ? (
-                <CheckCircle className="h-12 w-12 mx-auto mb-4" />
-              ) : (
-                <AlertTriangle className="h-12 w-12 text-gray-500 mx-auto mb-4" />
-              )}
-              <h4 className="text-elderly-lg font-bold mb-3">{flag.title}</h4>
-              {flag.found && (
-                <div className="bg-white text-success-green px-4 py-2 rounded-xl text-elderly-base font-bold">
-                  Found! +25 Points
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* SMS Safety Tips */}
       <div className="bg-blue-50 border-4 border-blue-accent rounded-2xl p-8 shadow-warm">
@@ -593,7 +644,7 @@ const SMSSimulation: React.FC<SMSSimulationProps> = ({
           </p>
           <button
             onClick={onReturnToDashboard}
-            className="bg-white text-success-green px-8 py-4 rounded-xl text-elderly-2xl font-bold hover:bg-gray-100 transition-colors duration-200 shadow-warm border-4 border-white"
+            className="bg-white text-success-green px-8 py-4 rounded-xl text-elderly-2xl font-bold hover:bg-gray-100 transition-colors duration-200 shadow-warm border-4 border-white min-h-[44px]"
           >
             Return to Home
           </button>

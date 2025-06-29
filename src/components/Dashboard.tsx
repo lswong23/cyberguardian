@@ -30,8 +30,17 @@ const Dashboard: React.FC<DashboardProps> = ({ userProgress, onStartEmailSimulat
           <Shield className="h-12 w-12 text-warm-white" />
         </div>
         <h2 className="text-elderly-3xl font-bold mb-4 text-navy">Welcome to Cyber Guardian!</h2>
+        <div className="bg-blue-50 border-2 border-blue-accent rounded-xl p-6 mb-6">
+          <p className="text-elderly-xl text-navy font-bold mb-3">🛡️ A Safe Training Site for Learning About Digital Security</p>
+          <p className="text-elderly-lg text-gray-700 mb-4">
+            This is a safe, educational environment—not a real scam site. We use simple, clear examples to help you recognize and avoid scams.
+          </p>
+          <p className="text-elderly-base text-blue-600 font-semibold">
+            No real phishing links here—just training to help you stay safe online!
+          </p>
+        </div>
         <p className="text-elderly-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-          We're here to help you stay safe from online scams. Learn at your own pace with friendly, easy lessons.
+          Learn at your own pace with friendly, easy lessons designed to keep you safe from online scams.
         </p>
         
         {/* Trust Message */}
@@ -41,8 +50,8 @@ const Dashboard: React.FC<DashboardProps> = ({ userProgress, onStartEmailSimulat
             <h3 className="text-elderly-xl font-bold text-navy">Why Trust Us?</h3>
           </div>
           <p className="text-elderly-base text-gray-700">
-            Created by cybersecurity experts and tested with families like yours. 
-            We use simple, clear examples to help you recognize and avoid scams.
+            We use simple, clear examples to help you recognize and avoid scams. 
+            Our training is designed to be helpful and easy to understand.
           </p>
         </div>
 
