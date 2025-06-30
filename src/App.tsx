@@ -76,10 +76,10 @@ function App() {
         )}
       </main>
 
-      {/* Built on Bolt Badge - Elderly Friendly */}
+      {/* Built with Bolt.new Badge - Elderly Friendly */}
       <div className="fixed bottom-4 right-4 z-50">
         <div className="bg-navy text-warm-white px-4 py-2 rounded-xl text-elderly-base font-semibold shadow-warm border-2 border-blue-accent">
-          Built on Bolt
+          Built with Bolt.new
         </div>
       </div>
     </div>
