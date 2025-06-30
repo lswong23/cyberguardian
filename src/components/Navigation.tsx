@@ -1,14 +1,15 @@
 import React from 'react';
-import { Home, Mail, MessageSquare, Award, BarChart3, ArrowRight } from 'lucide-react';
+import { Home, Mail, MessageSquare, Award, BarChart3, ArrowRight, User } from 'lucide-react';
 import { UserProgress } from '../App';
 
 interface NavigationProps {
   currentView: 'dashboard' | 'email-simulation' | 'sms-simulation';
   setCurrentView: (view: 'dashboard' | 'email-simulation' | 'sms-simulation') => void;
   userProgress: UserProgress;
+  onShowProfile: () => void;
 }
 
-const Navigation: React.FC<NavigationProps> = ({ currentView, setCurrentView, userProgress }) => {
+const Navigation: React.FC<NavigationProps> = ({ currentView, setCurrentView, userProgress, onShowProfile }) => {
   const navItems = [
     { id: 'dashboard', label: 'Home', icon: Home, description: 'Your learning dashboard' },
     { id: 'email-simulation', label: 'Email Safety', icon: Mail, description: 'Learn about email scams' },
@@ -52,7 +53,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setCurrentView, us
             })}
           </div>
           
-          {/* Stats - Larger and more accessible */}
+          {/* Stats and Profile */}
           <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
             <div className="flex items-center justify-center space-x-2 bg-success-green text-white px-4 py-3 rounded-xl font-bold shadow-gentle">
               <BarChart3 className="h-6 w-6" />
@@ -69,6 +70,18 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setCurrentView, us
                 <div className="text-sm">Badges</div>
               </div>
             </div>
+
+            <button
+              onClick={onShowProfile}
+              className="flex items-center justify-center space-x-2 bg-blue-accent text-white px-4 py-3 rounded-xl font-bold shadow-gentle hover:bg-blue-600 transition-colors duration-200"
+              title="View your profile"
+            >
+              <User className="h-6 w-6" />
+              <div className="text-center">
+                <div className="text-elderly-lg">Lv.{userProgress.currentLevel}</div>
+                <div className="text-sm">Profile</div>
+              </div>
+            </button>
           </div>
         </div>
       </div>
